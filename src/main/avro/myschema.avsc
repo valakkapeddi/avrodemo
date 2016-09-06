@@ -1,0 +1,16 @@
+{
+  "namespace": "com.akkapeddi.sample",
+  "type": "record",
+  "name": "LimitOrder",
+  "fields": [
+    {"name": "symbol", "type": "string"},
+    {"name": "amount", "type": "int"},
+    {"name": "rate", "type": "double"},
+    {"name": "side", "type": {
+      "name": "Side", "type":"enum", "symbols": ["BUY", "SELL"]
+      }
+
+    }
+
+  ]
+}
