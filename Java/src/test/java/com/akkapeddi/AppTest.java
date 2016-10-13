@@ -24,11 +24,11 @@ import static org.junit.Assert.assertEquals;
 
 public class AppTest
 {
-    LimitOrder order1 = new LimitOrder("EURUSD", 500000, 1.11d, Side.BUY);
+    LimitOrder order1 = new LimitOrder("EURUSD", 500000, 1.11d, Side.SELL);
 
     @Test
     public void serializeMessages() throws IOException {
-        Path path = Paths.get("/development/java/avro/avrosample/orders");
+        Path path = Paths.get("/var/tmp/orders");
 
         /* Note that toString on any Avro-generated class will return a valid JSON String.
         / However, due to encoding differences, this may not produce JSON that is deserializable
@@ -44,19 +44,36 @@ public class AppTest
         fileWriter.create(order1.getSchema(), file);
         fileWriter.append(order1);
 
+        System.out.println(file.getAbsolutePath());
+
         fileWriter.close();
     }
 
     @Test
     public void readMessages() throws IOException {
         DatumReader<LimitOrder> dataReader = new SpecificDatumReader<>(LimitOrder.class);
-        final File file = Paths.get("/development/java/avro/avrosample/orders").toFile();
+        final File file = Paths.get("/var/tmp/order").toFile();
 
         DataFileReader<LimitOrder> reader = new DataFileReader<>(file, dataReader);
 
         final List<LimitOrder> collect = StreamSupport.stream(reader.spliterator(), false).collect(Collectors.toList());
 
         assertEquals(order1, collect.get(0));
+    }
+
+    @Test
+    public void readMessagesFromCpp() throws IOException {
+        DatumReader<LimitOrder> dataReader = new SpecificDatumReader<>(LimitOrder.class);
+        final File file = Paths.get("/var/tmp/order_from_cpp").toFile();
+
+        DataFileReader<LimitOrder> reader = new DataFileReader<>(file, dataReader);
+
+        final LimitOrder collect = StreamSupport.stream(reader.spliterator(), false).collect(Collectors.toList()).get(0);
+
+        assertEquals(collect.getSymbol().toString(), "USDCAD");
+        assertEquals(collect.getSide(), Side.SELL);
+
+
     }
 
     @Test
@@ -88,5 +105,7 @@ public class AppTest
         final LimitOrder limitOrder1 = reader.read(null, decoder);
 
     }
+
+
 }
 
